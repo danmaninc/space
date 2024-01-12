@@ -1,5 +1,9 @@
 import {useEffect, useState} from "react";
 
+export interface WindowSize {
+    width: number;
+    height: number;
+}
 export const useResize = () => {
     const [width, setWidth] = useState(window.innerWidth);
     const [height, setHeight] = useState(window.innerHeight);
