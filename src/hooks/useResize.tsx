@@ -4,9 +4,10 @@ export const useResize = () => {
     const [width, setWidth] = useState(window.innerWidth);
     const [height, setHeight] = useState(window.innerHeight);
     useEffect(() => {
-        // @ts-ignore
-        const handleResize = (event) => {
-            setWidth(event.target.innerWidth);
+        const handleResize = (event : UIEvent) => {
+            const w = event.target as Window;
+            setWidth(w.innerWidth);
+            setHeight(w.innerHeight);
         };
         window.addEventListener('resize', handleResize);
         return () => {
