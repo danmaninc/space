@@ -6,42 +6,60 @@ interface Fragment {
     y: number
 }
 
+/**
+ * Redraws canvas based on the history stack
+ * @param ctx Canvas context
+ * @param stack History stack
+ */
+function redrawCanvas(ctx : CanvasRenderingContext2D | null, stack : Fragment[][]) {
+    for (let action of stack) {
+        draw(ctx, action);
+    }
+}
+
+/**
+ * Draws the performed action on canvas
+ * @param ctx Canvas context
+ * @param action Array of fragments (coordinates)
+ */
+function draw(ctx : CanvasRenderingContext2D | null, action : Fragment[]) {
+    ctx!.strokeStyle = 'rgba(0, 0, 0, 1)'
+    ctx!.beginPath();
+    for (let frag of action) {
+        ctx!.lineTo(frag.x, frag.y);
+    }
+    ctx!.stroke();
+}
+
 export function Canvas() {
     const [isPressed, setPressed] = useState(false)
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const [action, setAction] = useState<Fragment[]>([]);
     const [stack, setStack] = useState<Fragment[][]>([]);
-    const { width, height } = useResize();
+    const {width, height} = useResize();
+
+    {/* Redraw canvas if the window width or height were changed */}
     useEffect(() => {
         const ctx = canvasRef.current!.getContext('2d');
-        redrawCanvas(ctx);
+        redrawCanvas(ctx, stack);
     }, [width, height])
 
-    function redrawCanvas(ctx : CanvasRenderingContext2D | null) {
-        for (let action of stack) {
-            draw(ctx, action);
-        }
-    }
-
-    function draw(ctx : CanvasRenderingContext2D | null, action : Fragment[]) {
-        ctx!.strokeStyle = 'rgba(0, 0, 0, 1)'
-        ctx!.beginPath();
-        for (let frag of action) {
-            ctx!.lineTo(frag.x, frag.y);
-        }
-        ctx!.stroke();
-    }
-
-    function handleMouseDown(event : MouseEvent) {
+    function handleMouseDown(event: MouseEvent) {
         if (!isPressed) {
-            console.log("down");
+            {/* Start drawing process */}
             const ctx = canvasRef.current!.getContext('2d');
             ctx!.strokeStyle = 'rgba(0, 0, 0, 1)'
-            let curAct = action;
             ctx!.beginPath();
+
+            {/* Record fragment of current draw action */}
+            let curAct = action;
             curAct.push({x: event.pageX, y: event.pageY});
+
+            {/* Draw the line to the current coordinates */}
             ctx!.lineTo(event.pageX, event.pageY);
             ctx!.stroke();
+
+            {/* Update current states */}
             setAction(curAct);
             setPressed(true);
         }
@@ -49,38 +67,48 @@ export function Canvas() {
 
     function handleMouseUp() {
         if (isPressed) {
-            console.log("up");
+            {/* Stop drawing process */}
             const ctx = canvasRef.current!.getContext('2d');
             ctx!.stroke();
             ctx!.closePath();
+
+            {/* Record draw action in history stack */}
             stack.push(action);
             setAction([]);
             setStack(stack);
+
+            {/* Update current state */}
             setPressed(false);
-            console.log(stack);
         }
     }
 
     function handleMouseMove(event : MouseEvent) {
-        console.log("move");
         if (isPressed) {
+            {/* Draw the line to the current coordinates */}
             const ctx = canvasRef.current!.getContext('2d');
-            let curAct = action;
-            curAct.push({x: event.pageX, y: event.pageY});
             ctx!.lineTo(event.pageX, event.pageY);
             ctx!.stroke();
+
+            {/* Record movement in draw action */}
+            let curAct = action;
+            curAct.push({x: event.pageX, y: event.pageY});
             setAction(curAct);
         }
     }
 
     function handleLeave() {
         if (isPressed) {
+            {/* Stop drawing process */}
             const ctx = canvasRef.current!.getContext('2d');
             ctx!.stroke();
             ctx!.closePath();
+
+            {/* Record draw action in history stack */}
             stack.push(action);
             setAction([]);
             setStack(stack);
+
+            {/* Update current state */}
             setPressed(false);
         }
     }
