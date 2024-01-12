@@ -1,10 +1,8 @@
 import React, {useEffect, useRef, useState, MouseEvent} from "react";
 import {useResize} from "@/hooks/useResize";
+import {useStack} from "@/hooks/useStack";
+import {Fragment} from "@/hooks/useStack";
 
-interface Fragment {
-    x: number,
-    y: number
-}
 
 /**
  * Redraws canvas based on the history stack
@@ -31,11 +29,23 @@ function draw(ctx : CanvasRenderingContext2D | null, action : Fragment[]) {
     ctx!.stroke();
 }
 
+/**
+ * Draws the line to specified coordinates
+ * @param ctx Canvas context
+ * @param target Target coordinates
+ * @param color Color of the line
+ */
+function drawLineTo(ctx: CanvasRenderingContext2D | null, target: Fragment, color: string | CanvasGradient | CanvasPattern) {
+    ctx!.strokeStyle = color;
+    ctx!.lineTo(target.x, target.y);
+    ctx!.stroke();
+}
+
 export function Canvas() {
     const [isPressed, setPressed] = useState(false)
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const [action, setAction] = useState<Fragment[]>([]);
-    const [stack, setStack] = useState<Fragment[][]>([]);
+    const { stack, addStep, endAction } = useStack();
+
     const {width, height} = useResize();
 
     {/* Redraw canvas if the window width or height were changed */}
@@ -46,21 +56,15 @@ export function Canvas() {
 
     function handleMouseDown(event: MouseEvent) {
         if (!isPressed) {
-            {/* Start drawing process */}
+            {/* Start drawing process and draw the line to the current coordinates */}
             const ctx = canvasRef.current!.getContext('2d');
-            ctx!.strokeStyle = 'rgba(0, 0, 0, 1)'
             ctx!.beginPath();
+            drawLineTo(ctx, {x: event.pageX, y: event.pageY}, 'rgba(0, 0, 0, 1)')
 
             {/* Record fragment of current draw action */}
-            let curAct = action;
-            curAct.push({x: event.pageX, y: event.pageY});
-
-            {/* Draw the line to the current coordinates */}
-            ctx!.lineTo(event.pageX, event.pageY);
-            ctx!.stroke();
+            addStep({x: event.pageX, y: event.pageY});
 
             {/* Update current states */}
-            setAction(curAct);
             setPressed(true);
         }
     }
@@ -73,9 +77,7 @@ export function Canvas() {
             ctx!.closePath();
 
             {/* Record draw action in history stack */}
-            stack.push(action);
-            setAction([]);
-            setStack(stack);
+            endAction();
 
             {/* Update current state */}
             setPressed(false);
@@ -86,13 +88,10 @@ export function Canvas() {
         if (isPressed) {
             {/* Draw the line to the current coordinates */}
             const ctx = canvasRef.current!.getContext('2d');
-            ctx!.lineTo(event.pageX, event.pageY);
-            ctx!.stroke();
+            drawLineTo(ctx, {x: event.pageX, y: event.pageY}, 'rgba(0, 0, 0, 1)');
 
             {/* Record movement in draw action */}
-            let curAct = action;
-            curAct.push({x: event.pageX, y: event.pageY});
-            setAction(curAct);
+            addStep({x: event.pageX, y: event.pageY});
         }
     }
 
@@ -104,9 +103,7 @@ export function Canvas() {
             ctx!.closePath();
 
             {/* Record draw action in history stack */}
-            stack.push(action);
-            setAction([]);
-            setStack(stack);
+            endAction();
 
             {/* Update current state */}
             setPressed(false);
