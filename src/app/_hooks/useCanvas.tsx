@@ -35,8 +35,8 @@ export const useCanvas = () => {
         ctx!.beginPath();
         for (let frag of action) {
             ctx!.lineTo(frag.x, frag.y);
+            ctx!.stroke();
         }
-        ctx!.stroke();
     }
 
     /**
