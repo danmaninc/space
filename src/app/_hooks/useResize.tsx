@@ -5,14 +5,15 @@ export interface WindowSize {
     height: number;
 }
 export const useResize = () => {
-    const [width, setWidth] = useState(window.innerWidth);
-    const [height, setHeight] = useState(window.innerHeight);
+    const [width, setWidth] = useState(0);
+    const [height, setHeight] = useState(0);
+    const handleResize = () => {
+        setWidth(window.innerWidth);
+        setHeight(window.innerHeight);
+    };
+
     useEffect(() => {
-        const handleResize = (event : UIEvent) => {
-            const w = event.target as Window;
-            setWidth(w.innerWidth);
-            setHeight(w.innerHeight);
-        };
+        handleResize();
         window.addEventListener('resize', handleResize);
         return () => {
             window.removeEventListener('resize', handleResize);
