@@ -1,5 +1,5 @@
 import React, {MouseEvent} from "react";
-import {useCanvas} from "@/hooks/useCanvas";
+import {useCanvas} from "@/app/_hooks/useCanvas";
 
 export function Canvas() {
     const { canvasRef, w, isPressed, drawLineTo, stopDrawing } = useCanvas();

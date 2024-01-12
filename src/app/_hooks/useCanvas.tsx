@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState} from "react";
-import {useResize, WindowSize} from "@/hooks/useResize";
-import {Fragment, useStack} from "@/hooks/useStack";
+import {useResize, WindowSize} from "@/app/_hooks/useResize";
+import {Fragment, useStack} from "@/app/_hooks/useStack";
 
 export const useCanvas = () => {
     const [isPressed, setPressed] = useState(false);
