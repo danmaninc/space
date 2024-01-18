@@ -1,8 +1,10 @@
 import {combineSlices, configureStore} from "@reduxjs/toolkit";
 import {canvasSlice} from "@/store/reducers/CanvasSlice";
+import {socketSlice} from "@/store/reducers/SocketSlice";
 
-const rootReducer = combineSlices(canvasSlice, {
-    canvas: canvasSlice.reducer
+const rootReducer = combineSlices(canvasSlice, socketSlice, {
+    canvas: canvasSlice.reducer,
+    socket: socketSlice.reducer
 })
 
 export const setupStore = () => {
