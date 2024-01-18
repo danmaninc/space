@@ -2,10 +2,11 @@ import {useEffect, useRef, useState} from "react";
 import {useResize, WindowSize} from "@/app/_hooks/useResize";
 import { Fragment } from "@/app/_hooks/useStack";
 import { useAppDispatch, useAppSelector } from "@/app/_hooks/redux";
-import { joinFragment, endAction } from "@/store/reducers/CanvasSlice";
+import { joinFragment } from "@/store/reducers/CanvasSlice";
 
 export const useCanvas = () => {
     const [isPressed, setPressed] = useState(false);
+    const [usedAction, setUsedAction] = useState(0);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const stack = useAppSelector((state) => state.canvas.stack);
     const dispatch = useAppDispatch();
@@ -53,13 +54,15 @@ export const useCanvas = () => {
         const ctx = canvasRef.current!.getContext('2d');
         if (start) {
             ctx!.beginPath();
+            setUsedAction(stack.length);
         }
         ctx!.strokeStyle = color;
         ctx!.lineTo(target.x, target.y);
         ctx!.stroke();
 
         {/* Record fragment of current draw action */}
-        dispatch(joinFragment({x: target.x, y: target.y}));
+        console.log("frag:", usedAction);
+        dispatch(joinFragment({actionId: usedAction, fragment: { x: target.x, y: target.y }}));
 
         {/* Update current states */}
         setPressed(true);
@@ -74,11 +77,9 @@ export const useCanvas = () => {
         ctx!.stroke();
         ctx!.closePath();
 
-        {/* Record draw action in history stack */}
-        dispatch(endAction());
-
         {/* Update current state */}
         setPressed(false);
+        setUsedAction(stack.length);
     }
 
 
