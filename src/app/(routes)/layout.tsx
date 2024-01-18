@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
+import StoreProvider from "@/app/_components/StoreProvider";
+
+
+
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -13,8 +16,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className="w-screen h-screen">{children}</body>
-    </html>
+      <StoreProvider>
+        <html lang="en">
+          <body className="w-screen h-screen">{children}</body>
+        </html>
+      </StoreProvider>
   )
 }
