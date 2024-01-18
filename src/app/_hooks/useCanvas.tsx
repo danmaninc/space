@@ -1,11 +1,14 @@
 import {useEffect, useRef, useState} from "react";
 import {useResize, WindowSize} from "@/app/_hooks/useResize";
-import {Fragment, useStack} from "@/app/_hooks/useStack";
+import { Fragment } from "@/app/_hooks/useStack";
+import { useAppDispatch, useAppSelector } from "@/app/_hooks/redux";
+import { joinFragment, endAction } from "@/store/reducers/CanvasSlice";
 
 export const useCanvas = () => {
     const [isPressed, setPressed] = useState(false);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const { stack, addStep, endAction } = useStack();
+    const stack = useAppSelector((state) => state.canvas.stack);
+    const dispatch = useAppDispatch();
     const w : WindowSize = useResize();
 
     {/* Redraw canvas if the window width or height were changed */}
@@ -56,7 +59,7 @@ export const useCanvas = () => {
         ctx!.stroke();
 
         {/* Record fragment of current draw action */}
-        addStep({x: target.x, y: target.y});
+        dispatch(joinFragment({x: target.x, y: target.y}));
 
         {/* Update current states */}
         setPressed(true);
@@ -72,7 +75,7 @@ export const useCanvas = () => {
         ctx!.closePath();
 
         {/* Record draw action in history stack */}
-        endAction();
+        dispatch(endAction());
 
         {/* Update current state */}
         setPressed(false);
