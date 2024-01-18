@@ -1,4 +1,4 @@
-import {combineReducers, combineSlices, configureStore} from "@reduxjs/toolkit";
+import {combineSlices, configureStore} from "@reduxjs/toolkit";
 import {canvasSlice} from "@/store/reducers/CanvasSlice";
 
 const rootReducer = combineSlices(canvasSlice, {
