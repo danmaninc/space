@@ -5,6 +5,7 @@ export function Canvas() {
     const { canvasRef, w, isPressed, drawLineTo, stopDrawing } = useCanvas();
 
     function handleMouseDown(event: MouseEvent) {
+        // TODO: Handle only left click
         if (!isPressed) {
             drawLineTo({x: event.pageX, y: event.pageY}, 'rgba(0, 0, 0, 1)', true);
         }
