@@ -2,7 +2,23 @@ import {useEffect, useRef, useState} from "react";
 import {useResize, WindowSize} from "@/app/_hooks/useResize";
 import { Fragment } from "@/app/_hooks/useStack";
 import { useAppDispatch, useAppSelector } from "@/app/_hooks/redux";
-import { joinFragment } from "@/store/reducers/CanvasSlice";
+import {joinFragment, joinRoom, leaveRoom} from "@/store/reducers/CanvasSlice";
+import {sendFragment} from "@/store/reducers/SocketSlice";
+
+export function handleConnection(roomId: string, stack: Fragment[][]) {
+    const dispatch = useAppDispatch();
+    dispatch(joinRoom({roomId, stack}));
+}
+
+export function handleDisconnection() {
+    const dispatch = useAppDispatch();
+    dispatch(leaveRoom());
+}
+
+export function handleUpdate(actionId: number, fragment: Fragment) {
+    const dispatch = useAppDispatch();
+    dispatch(joinFragment({actionId, fragment}));
+}
 
 export const useCanvas = () => {
     const [isPressed, setPressed] = useState(false);
@@ -61,9 +77,9 @@ export const useCanvas = () => {
         ctx!.stroke();
 
         {/* Record fragment of current draw action */}
-        console.log("frag:", usedAction);
-        dispatch(joinFragment({actionId: usedAction, fragment: { x: target.x, y: target.y }}));
-
+        const action = {actionId: usedAction, fragment: { x: target.x, y: target.y }};
+        dispatch(joinFragment(action));
+        dispatch(sendFragment(action));
         {/* Update current states */}
         setPressed(true);
     }
