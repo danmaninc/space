@@ -26,15 +26,16 @@ export const canvasSlice = createSlice({
             // if canvas will go out of sync, then there is possible out of range exception!
             if (state.stack.length == action.payload.actionId) state.stack.push([]);
             state.stack[action.payload.actionId].push(action.payload.fragment);
-            const dispatch = useAppDispatch();
-            dispatch(sendFragment(action.payload))
         },
         joinRoom(state: CanvasState, action: PayloadAction<CanvasState>) {
             state.roomId = action.payload.roomId;
             state.stack = action.payload.stack;
+        },
+        leaveRoom(state: CanvasState) {
+            state.roomId = "";
+            state.stack = [];
         }
     }
 })
 
-export const { joinFragment, joinRoom } = canvasSlice.actions;
-export default canvasSlice.reducer;
+export const { joinFragment, joinRoom, leaveRoom } = canvasSlice.actions;
