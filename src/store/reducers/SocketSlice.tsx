@@ -1,8 +1,9 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import WebSocket from "ws";
-import {canvasSlice, joinFragment, joinRoom} from "@/store/reducers/CanvasSlice";
+import {canvasSlice, joinFragment, joinRoom, leaveRoom} from "@/store/reducers/CanvasSlice";
 import {useAppDispatch} from "@/app/_hooks/redux";
 import {Fragment} from "@/app/_hooks/useStack";
+import {handleConnection, handleDisconnection, handleUpdate} from "@/app/_hooks/useCanvas";
 
 interface SocketState {
     ws: WebSocket | null;
@@ -37,20 +38,19 @@ export const socketSlice = createSlice({
             })
             state.ws.on('register-success', function regSuccess(event) {
                 const data = JSON.parse(event);
-                const dispatch = useAppDispatch();
-                dispatch(joinRoom({roomId: action.payload.roomId, stack: data.stack}));
+                handleConnection(action.payload.roomId, data.stack);
                 console.log(`[WS] entered room ${action.payload.roomId} with username: ${action.payload.username}.`);
             })
             state.ws.on('canvas-update', function receiveAction(event) {
                 const data = JSON.parse(event);
-                const dispatch = useAppDispatch();
-                dispatch(joinFragment({actionId: data.actionId, fragment: data.fragment}));
+                // TODO: maybe useContext?
+                handleUpdate(data.actionId, data.fragment);
                 console.log(`[WS] received and dispatched event`);
             })
-            // TODO: Clear canvas on disconnect (user clicked "leave" button)
-            state.ws.on('disconnect', function handleDisconnect() {
+            state.ws.on('close', function handleDisconnect() {
                 state.connected = false;
                 state.ws = null;
+                handleDisconnection();
                 console.log(`[WS] connection closed`);
             })
         },
@@ -60,9 +60,13 @@ export const socketSlice = createSlice({
                 state.ws.emit('canvas-update', data);
                 console.log(`[WS] sent action`);
             }
+        },
+        disconnectFromServer(state: SocketState) {
+            if (state.ws) {
+                state.ws.close(1000, 'leaveRoom');
+            }
         }
     }
 })
 
-export const { connectToServer, sendFragment } = socketSlice.actions;
-export default socketSlice.reducer;
+export const { connectToServer, sendFragment, disconnectFromServer } = socketSlice.actions;
