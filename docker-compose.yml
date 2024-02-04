@@ -1,7 +1,15 @@
 version: "3"
 services:
+  space:
+    build: .
+    restart: always
+    container_name: prod_space
+    ports:
+      - "3000:3000"
   nginx:
     image: nginx:stable-alpine
+    depends_on:
+      - space
     container_name: prod_nginx
     volumes:
       - ./.docker/nginx:/etc/nginx/conf.d
@@ -9,9 +17,3 @@ services:
     ports:
       - "80:80"
       - "443:443"
-  space:
-    build: .
-    restart: always
-    container_name: prod_space
-    ports:
-      - "3000:3000"
