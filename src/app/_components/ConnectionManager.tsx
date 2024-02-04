@@ -1,6 +1,6 @@
 import {ChangeEvent, useState} from "react";
 import {useAppDispatch, useAppSelector} from "@/app/_hooks/redux";
-import {connectToServer} from "@/store/reducers/SocketSlice";
+import {connectToServer, disconnectFromServer} from "@/store/reducers/SocketSlice";
 
 export function ConnectionManager() {
     const [username, setUsername] = useState("");
@@ -13,10 +13,10 @@ export function ConnectionManager() {
     }
 
     function tryLeaving() {
-        // TODO: create leave action in socket slice
+        dispatch(disconnectFromServer());
     }
-    // TODO: Change naming to username
-    function changeNicknameValue(e: ChangeEvent<HTMLInputElement>) {
+
+    function changeUsernameValue(e: ChangeEvent<HTMLInputElement>) {
         if (e.target.value.length <= 16) {
             setUsername(e.target.value.trim().replace(RegExp("[^A-Z]", "i"), ""))
         }
@@ -26,12 +26,10 @@ export function ConnectionManager() {
             setRoomId(e.target.value.toUpperCase().trim().replace(RegExp("[^A-Z]"), ""))
         }
     }
-    // TODO: Don't forget to correct boolean statement from the debug one
-    if (!connected) {
+    if (connected) {
         return <div className="fixed bg-gray-100 rounded-md flex flex-col select-none bottom-0 m-1 gap-1">
             <h3 className="text-center text-md">you are in room</h3>
-            {/* TODO: Don't forget to put here roomId */}
-            <h2 className="text-center text-xl font-semibold">XXXXXX</h2>
+            <h2 className="text-center text-xl font-semibold">{(roomId != "") ? roomId : "??????"}</h2>
             <button
                 className="bg-gray-400 rounded-md px-1"
                 onClick={tryLeaving}
@@ -44,7 +42,7 @@ export function ConnectionManager() {
             <h3 className="text-center text-md">join your friends!</h3>
             <input
                 className="bg-gray-300 text-center text-gray-700 font-medium rounded-sm w-36"
-                onChange={changeNicknameValue}
+                onChange={changeUsernameValue}
                 placeholder="your nickname"
                 value={username}
             />
