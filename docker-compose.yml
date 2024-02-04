@@ -6,6 +6,8 @@ services:
     container_name: prod_space
     ports:
       - "3000:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
   nginx:
     image: nginx:stable-alpine
     depends_on:
