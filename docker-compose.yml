@@ -1,7 +1,17 @@
 version: "3"
 services:
+  nginx:
+    image: nginx:stable-alpine
+    container_name: prod_nginx
+    volumes:
+      - ./.docker/nginx:/etc/nginx/conf.d
+      - ./.docker/nginx/certs:/etc/nginx/certs
+    ports:
+      - "80:80"
+      - "443:443"
   space:
     build: .
     restart: always
+    container_name: prod_space
     ports:
       - "3000:3000"
