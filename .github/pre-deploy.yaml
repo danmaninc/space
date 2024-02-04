@@ -1,0 +1,29 @@
+name: Deploy to testing server
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  pre-deploy:
+    name: Deploy to testing server
+    runs-on: self-hosted
+    environment:
+      name: pre-space
+      url: pre-space.dminc.ru
+    steps:
+      - name: Run via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          fingerprint: ${{ secrets.SSH_FINGERPRINT }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script_stop: true
+          script: |
+            cd ${{ secrets.SSH_DEPLOY_DIR }}
+            ./${{ secrets.SSH_DEPLOY_SCRIPT }}
