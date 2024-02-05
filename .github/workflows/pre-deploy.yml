@@ -25,4 +25,4 @@ jobs:
           script_stop: true
           script: |
             cd ${{ secrets.SSH_DEPLOY_DIR }}
-            ./${{ secrets.SSH_DEPLOY_SCRIPT }}
+            ${{ secrets.SSH_DEPLOY_SCRIPT }}
